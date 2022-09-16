@@ -54,11 +54,25 @@
 // - a menu message to display
 // - a callback function to perform the menu action
 ///////////////////////////////////////////////////////////////////////////////
-struct OledMenuEntry
+class OledMenuEntry
 {
+public:
   char * message;
   void (*actionCallback)();
   void (*actionNumberCallback)(void (*callbackFunction)(int));
+
+  OledMenuEntry(){};
+
+  OledMenuEntry(char* message, void (*actionCallback)()):
+  message(message),
+  actionCallback(actionCallback)
+  {}
+
+  OledMenuEntry(char* message, void (*actionNumberCallback)(void (*callbackFunction)(int))):
+  message(message),
+  actionNumberCallback(actionNumberCallback)
+  {}
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,11 +93,12 @@ class OledMenu
     uint8_t formerMenuSize;
 
     //submenu attributes
-    static char getNumberMenuIntro[];
     OledMenuEntry getNumberMenu[1];
     uint8_t numberMenuSize;
     static boolean inNumberMenu;
     static void (*callbackAux)(int);
+    //getNumber value (OledMenu "navigates" this number)
+    uint16_t number;
 
     //Oled navigation
     Adafruit_SSD1306 oled;
@@ -98,9 +113,6 @@ class OledMenu
   public:
 
     static uint8_t portStatus;
-
-    //getNumber value
-    static uint16_t number;
 
     // Get a pointer to the one singleton instance of this class
     static OledMenu& get();
@@ -144,7 +156,7 @@ class OledMenu
       formerMenu=menu;
       formerMenuSize=size;
 
-      getNumberMenu[0] = {"", [](){}, [](void (*callbackFunction)(int)){
+      getNumberMenu[0] = OledMenuEntry(message,[](void (*callbackFunction)(int)){
           inNumberMenu = !singleton->inNumberMenu;
           //Display former menu
           singleton->load(singleton->formerMenu, singleton->formerMenuSize);
@@ -153,7 +165,7 @@ class OledMenu
           Serial.println(singleton->number);
           callbackFunction(singleton->number);
           singleton->show();
-        }};
+        });
 
       numberMenuSize = GET_MENU_SIZE(getNumberMenu);
 

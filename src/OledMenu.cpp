@@ -9,11 +9,9 @@ OledMenuEntry* OledMenu::menu = nullptr;
 uint8_t OledMenu::size = uint8_t(0);
 int8_t OledMenu::cursor = int8_t(0);
 uint8_t OledMenu::portStatus =  uint8_t(0);
-uint16_t OledMenu::number;
+//uint16_t OledMenu::number;
 boolean OledMenu::inNumberMenu=false;
 void (*OledMenu::callbackAux)(int);
-
-char OledMenu::getNumberMenuIntro[15];
 
 
 
@@ -103,7 +101,7 @@ void OledMenu::show()
     {
       //void print (const char* text1, const char* text2)
       oled.setCursor(WIDTH/4, 10);
-      oled.print(getNumberMenuIntro); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
+      oled.print(menu[0].message);
       oled.setCursor(WIDTH/4, HEIGHT/2);//TODO TESTS
       //reckonNumberMenu();
       //oled.print(menu[1].message);
