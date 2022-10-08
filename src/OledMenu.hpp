@@ -57,7 +57,6 @@
 struct OledMenuEntry
 {
   char * message;
-  void (*actionCallback)();
   void (*actionNumberCallback)(void (*callbackFunction)(int));
 };
 
@@ -70,19 +69,12 @@ class OledMenu
     // This class implements a singleton design pattern with one static instance
     static OledMenu * singleton;
     // Points to the array of menu entries for the current menu
-    OledMenuEntry * menu;
+    static OledMenuEntry menu[2];
     // number of entries in the current menu
     uint8_t size;
 
-    //attributes to change to submenu
-    OledMenuEntry * formerMenu;
-    uint8_t formerMenuSize;
-
     //submenu attributes
-    //char getNumberMenuIntro[15];
-    OledMenuEntry getNumberMenu[1];
     uint8_t numberMenuSize;
-    boolean inNumberMenu;
     void (*callbackAux)(int);
 
     //Oled navigation
@@ -104,23 +96,9 @@ class OledMenu
 
     // Get a pointer to the one singleton instance of this class
     static OledMenu& get();
-    // Get a pointer to the one singleton instance of this class and point it
-    // to the current menu
-    static const OledMenu& get(OledMenuEntry* array, uint8_t arraySize);
 
     //init Oled
     void OledBegin();
-
-    // Install the current menu to display
-    inline void load(OledMenuEntry* array, uint8_t arraySize)
-    {
-      //reset screen values
-      cursor=0;
-      oldCursor=0;
-
-      menu = array;
-      size = arraySize;
-    }
 
     // Display the current menu on the Serial console
     void show();
@@ -141,32 +119,12 @@ class OledMenu
     // so user can choose a number and select it by using the buttons
     void getNumber(const char* message, const uint16_t startingValue, void (*callback)(int)){
 
-      formerMenu=menu;
-      formerMenuSize=size;
-
-      //TODO:SHOULD IT BE DECLARED OUT OF THE FUNCTION SO THE MICROCONTROLLER HAS RESERVED
-      //ENOUGH MEMORY FROM THE BEGINNING, AND THEREFORE CAN ALLOCATE THIS SECONDARY MENU?
-      getNumberMenu[0] = {"", [](){}, [](void (*callbackFunction)(int)){
-          singleton->inNumberMenu = !singleton->inNumberMenu;
-          //Display former menu
-          singleton->load(singleton->formerMenu, singleton->formerMenuSize);
-          singleton->cursor = 0;
-          singleton->oldCursor = 0;
-          Serial.println(singleton->number);
-          callbackFunction(singleton->number);
-          singleton->show();
-        }};
-
-      numberMenuSize = GET_MENU_SIZE(getNumberMenu);
-
       number=startingValue;
       Serial.println(number);
 
-      sprintf(getNumberMenu[0].message, "%s", message);
+      menu[0].message = message;
       callbackAux = callback;
-      inNumberMenu=true;
 
-      load(getNumberMenu,numberMenuSize);
       show();
     }
 ///////////////////////////////////////////////////////////////////////////////

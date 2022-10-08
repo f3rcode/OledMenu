@@ -5,17 +5,18 @@
 #include <OledMenu.hpp>
 
 OledMenu* OledMenu::singleton = nullptr;
+OledMenuEntry OledMenu::menu[2] = {
+  {"default",[](void (*callbackFunction)(int)){}},
+  {"", [](void (*callbackFunction)(int)){
+      singleton->cursor = 0;
+      singleton->oldCursor = 0;
+      Serial.println(singleton->number);
+      delay(400);
+      callbackFunction(singleton->number);
+    }}
+};
+
 uint8_t OledMenu::portStatus =  uint8_t(0);
-
-//OledMenuEntry* OledMenu::menu = nullptr;
-//uint8_t OledMenu::size = uint8_t(0);
-//int8_t OledMenu::cursor = int8_t(0);
-//uint16_t OledMenu::number;
-//boolean OledMenu::inNumberMenu=false;
-//void (*OledMenu::callbackAux)(int);
-
-//char OledMenu::getNumberMenuIntro[15];
-
 
 
 OledMenu::OledMenu() :
@@ -50,13 +51,6 @@ OledMenu &OledMenu::get()
       return *singleton;
   }
 
-//static
-const OledMenu& OledMenu::get(OledMenuEntry* array, uint8_t arraySize)
-  {
-      (void) OledMenu::get();
-      singleton->load(array, arraySize);
-      return *singleton;
-  }
 
 //method to init Oled
 //Wire::begin() hangs when Oled::begin() called from OledMenu constructor
@@ -72,50 +66,15 @@ void OledMenu::show()
   oled.setTextColor(WHITE);
   oled.setTextSize(TEXTSIZE);
 
-
-    if (!inNumberMenu)
-    {
-      if (cursor != 0)
-      {
-        oled.setCursor(10, HEIGHT/2);
-        oled.print("<");
-      }
-      oled.setCursor(WIDTH/4, HEIGHT/2);
-      // String in PROGMEM Flash, move it via a SRAM buffer to print it
-      char buffer[PROGMEM_BUF_SIZE];
-      const char * progMemPt = menu[cursor].message;
-      uint8_t len = strlcpy_P(buffer, progMemPt, PROGMEM_BUF_SIZE);
-      oled.print(buffer);
-      while (len >= PROGMEM_BUF_SIZE)
-      {
-        len -= PROGMEM_BUF_SIZE - 1;
-        progMemPt += PROGMEM_BUF_SIZE - 1;
-        len = strlcpy_P(buffer, progMemPt, PROGMEM_BUF_SIZE);
-        oled.print(buffer);
-      }
-      if (cursor != size -1)
-      {
-        oled.setCursor(WIDTH-10, HEIGHT/2);
-        oled.print(">");
-      }
-      oled.display();
-    }
-    else
-    {
-      //void print (const char* text1, const char* text2)
-      oled.setCursor(WIDTH/4, 10);
-      oled.print(menu[0].message); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
-      oled.setCursor(WIDTH/4, HEIGHT/2);//TODO TESTS
-      //reckonNumberMenu();
-      //oled.print(menu[1].message);
-      oled.print(number-1);
-      oled.print("   [");
-      oled.print(number);
-      oled.print("]   ");
-      oled.print(number+1);
-      oled.display();
-    }
-
+  oled.setCursor(WIDTH/4, 10);
+  oled.print(menu[0].message); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
+  oled.setCursor(WIDTH/4, HEIGHT/2);
+  oled.print(number-1);
+  oled.print("   [");
+  oled.print(number);
+  oled.print("]   ");
+  oled.print(number+1);
+  oled.display();
 }
 
 
@@ -219,19 +178,6 @@ void OledMenu::print (float number1,float number2,float number3,const char* text
 */
 void OledMenu::run(const uint16_t loopDelayMs)
 {
-  if (!inNumberMenu)
-  {
-    if (oldCursor!=cursor)
-    {
-      oldCursor=cursor;
-      show();
-    }
-
-    delay(loopDelayMs);
-    return;
- }
- else
- {
    if (cursor<oldCursor)
    {
       number--;
@@ -244,59 +190,24 @@ void OledMenu::run(const uint16_t loopDelayMs)
    }
    cursor=oldCursor;
    delay(loopDelayMs);
-   return;
- }
 }
 
 //static
 void OledMenu::enterSelected()
 {
-
-  //digitalWrite(5,LOW);//DEBUG
-
-  if (!singleton->inNumberMenu)
-  {
-    singleton->menu[singleton->cursor].actionCallback();
-  }
-  else
-  {
-    singleton->menu[0].actionNumberCallback(singleton->callbackAux);
-  }
-
-  return;
+  singleton->menu[1].actionNumberCallback(singleton->callbackAux);
  }
 
 //static
 void OledMenu::upSelected()
 {
-
-  //digitalWrite(5,HIGH);//DEBUG
-
-  if (!singleton->inNumberMenu && singleton->cursor >= singleton->size-1)
-  {
-    return;
-  }
-  else
-  {
     singleton->cursor++;
-  }
-  return;
 }
 
  //static
  void OledMenu::downSelected()
 {
-
- //digitalWrite(5,HIGH);//DEBUG
-
-  if (!singleton->inNumberMenu && singleton->cursor <= 0)
-  {
-    return;
-  }
-  else
-  {
     singleton->cursor--;
-  }
 }
 //ISR_NOBLOCK insert a SEI() instruction right at the beginning
 // in order to not defer any other interrupt more than absolutely needed.
