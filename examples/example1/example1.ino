@@ -21,22 +21,22 @@ const OledMenuEntry mainMenu[] = {
                                     Serial.println("Option1");
                                     menu.print("Option2");
                                     foo(0);
-                                  }, [](int v){Serial.print("STILL  HERE");} },
+                                  }},
   {mainMenuNatto, [](){//prints on Oled and serial
                                   //and get the message on Oled screen for n msec.
                                   Serial.println("Option2");
                                   menu.print("Option2",(uint8_t) 500);
                                   foo(1);
-                                  }, [](int v){Serial.print("STILL  HERE");} },
+                                  }},
   {mainMenuKoji, [](){Serial.println("Still not available.");
                                   menu.print("Still not available.");
-                                  }, [](int v){Serial.print("STILL  HERE");} },
+                                  }},
   {mainMenuNumber, [](){//menu.print("Starring NumberMenu", (uint8_t) 1000);
                                      menu.getNumber("something", (uint8_t) 8, 
                                      [](int v){
                                         menu.print("setting number",(uint8_t) 500);
                                         menu.print(v,(uint8_t) 500);});
-                                  }, [](int v){Serial.print("STILL  HERE");} },
+                                  }},
 };
 constexpr uint8_t mainMenuSize = GET_MENU_SIZE(mainMenu);
 

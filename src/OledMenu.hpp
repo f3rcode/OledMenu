@@ -58,7 +58,6 @@ struct OledMenuEntry
 {
   char * message;
   void (*actionCallback)();
-  void (*actionNumberCallback)(void (*callbackFunction)(int));
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,14 +73,8 @@ class OledMenu
     // number of entries in the current menu
     uint8_t size;
 
-    //attributes to change to submenu
-    OledMenuEntry * formerMenu;
-    uint8_t formerMenuSize;
-
     //submenu attributes
-    //char getNumberMenuIntro[15];
-    OledMenuEntry getNumberMenu[1];
-    uint8_t numberMenuSize;
+    char *getNumberMenuLabel;
     boolean inNumberMenu;
     void (*callbackAux)(int);
 
@@ -140,33 +133,13 @@ class OledMenu
     // Note: this routine is showing a special menu
     // so user can choose a number and select it by using the buttons
     void getNumber(const char* message, const uint16_t startingValue, void (*callback)(int)){
-
-      formerMenu=menu;
-      formerMenuSize=size;
-
-      //TODO:SHOULD IT BE DECLARED OUT OF THE FUNCTION SO THE MICROCONTROLLER HAS RESERVED
-      //ENOUGH MEMORY FROM THE BEGINNING, AND THEREFORE CAN ALLOCATE THIS SECONDARY MENU?
-      getNumberMenu[0] = {"", [](){}, [](void (*callbackFunction)(int)){
-          singleton->inNumberMenu = !singleton->inNumberMenu;
-          //Display former menu
-          singleton->load(singleton->formerMenu, singleton->formerMenuSize);
-          singleton->cursor = 0;
-          singleton->oldCursor = 0;
-          Serial.println(singleton->number);
-          callbackFunction(singleton->number);
-          singleton->show();
-        }};
-
-      numberMenuSize = GET_MENU_SIZE(getNumberMenu);
-
       number=startingValue;
       Serial.println(number);
 
-      sprintf(getNumberMenu[0].message, "%s", message);
+      getNumberMenuLabel = message;
       callbackAux = callback;
       inNumberMenu=true;
 
-      load(getNumberMenu,numberMenuSize);
       show();
     }
 ///////////////////////////////////////////////////////////////////////////////

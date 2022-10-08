@@ -7,20 +7,13 @@
 OledMenu* OledMenu::singleton = nullptr;
 uint8_t OledMenu::portStatus =  uint8_t(0);
 
-//OledMenuEntry* OledMenu::menu = nullptr;
-//uint8_t OledMenu::size = uint8_t(0);
-//int8_t OledMenu::cursor = int8_t(0);
-//uint16_t OledMenu::number;
-//boolean OledMenu::inNumberMenu=false;
-//void (*OledMenu::callbackAux)(int);
-
-//char OledMenu::getNumberMenuIntro[15];
-
-
-
 OledMenu::OledMenu() :
     oled(WIDTH, HEIGHT, &Wire, OLED_RESET),
-    oldCursor(0)
+    oldCursor(0),
+    cursor(0),
+    size(0),
+    number(0),
+    inNumberMenu(false)
 {
     Serial.begin(9600);
     while (!Serial);
@@ -244,7 +237,6 @@ void OledMenu::run(const uint16_t loopDelayMs)
    }
    cursor=oldCursor;
    delay(loopDelayMs);
-   return;
  }
 }
 
@@ -260,10 +252,13 @@ void OledMenu::enterSelected()
   }
   else
   {
-    singleton->menu[0].actionNumberCallback(singleton->callbackAux);
+    singleton->inNumberMenu = !singleton->inNumberMenu;
+    //Display former menu
+    singleton->cursor = 0;
+    singleton->oldCursor = 0;
+    delay(400);
+    singleton->callbackAux(singleton->number);
   }
-
-  return;
  }
 
 //static
