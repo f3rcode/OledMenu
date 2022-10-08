@@ -10,7 +10,7 @@ OledMenuEntry OledMenu::menu[2] = {
   {"", [](void (*callbackFunction)(int)){
       singleton->cursor = 0;
       singleton->oldCursor = 0;
-      Serial.println(singleton->number);
+      //Serial.println(singleton->number);
       delay(400);
       callbackFunction(singleton->number);
     }}
@@ -23,8 +23,8 @@ OledMenu::OledMenu() :
     oled(WIDTH, HEIGHT, &Wire, OLED_RESET),
     oldCursor(0)
 {
-    Serial.begin(9600);
-    while (!Serial);
+    //Serial.begin(9600);
+    //while (!Serial);
 
     pcIntInit();
     pinMode(ENTER_BUTTON, INPUT);

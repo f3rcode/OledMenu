@@ -22,7 +22,7 @@
 //
 
 #include <avr/pgmspace.h>
-#include <HardwareSerial.h>
+//#include <HardwareSerial.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -120,7 +120,7 @@ class OledMenu
     void getNumber(const char* message, const uint16_t startingValue, void (*callback)(int)){
 
       number=startingValue;
-      Serial.println(number);
+      //Serial.println(number);
 
       menu[0].message = message;
       callbackAux = callback;
