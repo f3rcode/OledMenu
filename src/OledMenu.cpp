@@ -1,19 +1,20 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // OledMenu - by f3rcode (based on SerialMenu (Dan Truong's library)
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include <OledMenu.hpp>
 
 OledMenu* OledMenu::singleton = nullptr;
-OledMenuEntry* OledMenu::menu = nullptr;
-uint8_t OledMenu::size = uint8_t(0);
-int8_t OledMenu::cursor = int8_t(0);
 uint8_t OledMenu::portStatus =  uint8_t(0);
-uint16_t OledMenu::number;
-boolean OledMenu::inNumberMenu=false;
-void (*OledMenu::callbackAux)(int);
 
-char OledMenu::getNumberMenuIntro[15];
+//OledMenuEntry* OledMenu::menu = nullptr;
+//uint8_t OledMenu::size = uint8_t(0);
+//int8_t OledMenu::cursor = int8_t(0);
+//uint16_t OledMenu::number;
+//boolean OledMenu::inNumberMenu=false;
+//void (*OledMenu::callbackAux)(int);
+
+//char OledMenu::getNumberMenuIntro[15];
 
 
 
@@ -103,7 +104,7 @@ void OledMenu::show()
     {
       //void print (const char* text1, const char* text2)
       oled.setCursor(WIDTH/4, 10);
-      oled.print(getNumberMenuIntro); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
+      oled.print(menu[0].message); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
       oled.setCursor(WIDTH/4, HEIGHT/2);//TODO TESTS
       //reckonNumberMenu();
       //oled.print(menu[1].message);
@@ -214,7 +215,7 @@ void OledMenu::print (float number1,float number2,float number3,const char* text
 }
 
 /*
-* SerialMenu::run function mod
+* OledMenu::run function mod
 */
 void OledMenu::run(const uint16_t loopDelayMs)
 {
@@ -253,13 +254,13 @@ void OledMenu::enterSelected()
 
   //digitalWrite(5,LOW);//DEBUG
 
-  if (!inNumberMenu)
+  if (!singleton->inNumberMenu)
   {
-    menu[OledMenu::cursor].actionCallback();
+    singleton->menu[singleton->cursor].actionCallback();
   }
   else
   {
-    menu[0].actionNumberCallback(callbackAux);
+    singleton->menu[0].actionNumberCallback(singleton->callbackAux);
   }
 
   return;
@@ -271,13 +272,13 @@ void OledMenu::upSelected()
 
   //digitalWrite(5,HIGH);//DEBUG
 
-  if (!inNumberMenu && cursor >= size-1)
+  if (!singleton->inNumberMenu && singleton->cursor >= singleton->size-1)
   {
     return;
   }
   else
   {
-    cursor++;
+    singleton->cursor++;
   }
   return;
 }
@@ -288,13 +289,13 @@ void OledMenu::upSelected()
 
  //digitalWrite(5,HIGH);//DEBUG
 
-  if (!inNumberMenu && cursor <= 0)
+  if (!singleton->inNumberMenu && singleton->cursor <= 0)
   {
     return;
   }
   else
   {
-    cursor--;
+    singleton->cursor--;
   }
 }
 //ISR_NOBLOCK insert a SEI() instruction right at the beginning

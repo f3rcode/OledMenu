@@ -70,24 +70,24 @@ class OledMenu
     // This class implements a singleton design pattern with one static instance
     static OledMenu * singleton;
     // Points to the array of menu entries for the current menu
-    static OledMenuEntry * menu;
+    OledMenuEntry * menu;
     // number of entries in the current menu
-    static uint8_t size;
+    uint8_t size;
 
     //attributes to change to submenu
     OledMenuEntry * formerMenu;
     uint8_t formerMenuSize;
 
     //submenu attributes
-    static char getNumberMenuIntro[];
+    //char getNumberMenuIntro[15];
     OledMenuEntry getNumberMenu[1];
     uint8_t numberMenuSize;
-    static boolean inNumberMenu;
-    static void (*callbackAux)(int);
+    boolean inNumberMenu;
+    void (*callbackAux)(int);
 
     //Oled navigation
     Adafruit_SSD1306 oled;
-    static int8_t cursor;
+    int8_t cursor;
     int8_t oldCursor;
 
     //Constructor: init with an empty menu, prepares Oled screen
@@ -100,7 +100,7 @@ class OledMenu
     static uint8_t portStatus;
 
     //getNumber value
-    static uint16_t number;
+    uint16_t number;
 
     // Get a pointer to the one singleton instance of this class
     static OledMenu& get();
@@ -144,11 +144,13 @@ class OledMenu
       formerMenu=menu;
       formerMenuSize=size;
 
+      //TODO:SHOULD IT BE DECLARED OUT OF THE FUNCTION SO THE MICROCONTROLLER HAS RESERVED
+      //ENOUGH MEMORY FROM THE BEGINNING, AND THEREFORE CAN ALLOCATE THIS SECONDARY MENU?
       getNumberMenu[0] = {"", [](){}, [](void (*callbackFunction)(int)){
-          inNumberMenu = !singleton->inNumberMenu;
+          singleton->inNumberMenu = !singleton->inNumberMenu;
           //Display former menu
           singleton->load(singleton->formerMenu, singleton->formerMenuSize);
-          cursor = 0;
+          singleton->cursor = 0;
           singleton->oldCursor = 0;
           Serial.println(singleton->number);
           callbackFunction(singleton->number);
