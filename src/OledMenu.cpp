@@ -5,17 +5,6 @@
 #include <OledMenu.hpp>
 
 OledMenu* OledMenu::singleton = nullptr;
-OledMenuEntry OledMenu::menu[2] = {
-  {"default",[](void (*callbackFunction)(int)){}},
-  {"", [](void (*callbackFunction)(int)){
-      singleton->cursor = 0;
-      singleton->oldCursor = 0;
-      //Serial.println(singleton->number);
-      delay(400);
-      callbackFunction(singleton->number);
-    }}
-};
-
 uint8_t OledMenu::portStatus =  uint8_t(0);
 
 
@@ -67,7 +56,7 @@ void OledMenu::show()
   oled.setTextSize(TEXTSIZE);
 
   oled.setCursor(WIDTH/4, 10);
-  oled.print(menu[0].message); //VORSICHT! MENU[0].MESSAGE HAS NO STATIC DATA... SOMETHING IS OVERWRITING THIS CHAR* FIELDS... OVERFLOW SOMEWHERE?
+  oled.print(getNumberMenuLabel); 
   oled.setCursor(WIDTH/4, HEIGHT/2);
   oled.print(number-1);
   oled.print("   [");
@@ -195,7 +184,10 @@ void OledMenu::run(const uint16_t loopDelayMs)
 //static
 void OledMenu::enterSelected()
 {
-  singleton->menu[1].actionNumberCallback(singleton->callbackAux);
+  singleton->cursor = 0;
+  singleton->oldCursor = 0;
+  delay(400);
+  singleton->callbackAux(singleton->number);
  }
 
 //static

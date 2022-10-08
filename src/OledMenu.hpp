@@ -68,13 +68,9 @@ class OledMenu
   private:
     // This class implements a singleton design pattern with one static instance
     static OledMenu * singleton;
-    // Points to the array of menu entries for the current menu
-    static OledMenuEntry menu[2];
-    // number of entries in the current menu
-    uint8_t size;
-
-    //submenu attributes
-    uint8_t numberMenuSize;
+    // Points to the "title" of the current getnumbermenu
+    char *getNumberMenuLabel;
+    // Callback to execute when pressing Enter
     void (*callbackAux)(int);
 
     //Oled navigation
@@ -122,7 +118,7 @@ class OledMenu
       number=startingValue;
       //Serial.println(number);
 
-      menu[0].message = message;
+      getNumberMenuLabel = message;
       callbackAux = callback;
 
       show();
